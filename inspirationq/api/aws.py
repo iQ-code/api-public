@@ -20,7 +20,12 @@ class iQSamAPI(iQBareAPI):
             AuthParameters = {"USERNAME": self.username, "PASSWORD": self.password},
         )
         # Getting the user details.
-        self.access_token = response["AuthenticationResult"]["IdToken"]
+        if "AuthenticationResult" in response:
+            result = response["AuthenticationResult"]
+            if "IdToken" in result:
+                self.access_token = result["IdToken"]
+                return True
+        raise Exception(f'Unable to obtain authentication information from Cognito. Response:\n{response}')
 
     def authorization(self):
         if self.access_token is None:
