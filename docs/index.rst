@@ -14,6 +14,7 @@ Inspiration-Q SDK is a Python-based programming interface to access Inspiration-
 
    intro/setup
    intro/tokens
+   optimization/index
 
 
 Indices and tables
