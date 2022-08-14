@@ -9,7 +9,7 @@ if "%1" == "check" (
     echo *** Running test suite
     echo ***
     cd tests
-    python -m unittest discover -s . -p *.py -v
+    python -m unittest tests
     goto :eof
 )
 if "%1" == "clean" (
@@ -29,7 +29,7 @@ if "%1" == "reinstall" (
     echo ***
     echo *** Installing library
     echo ***
-    pip uninstall -y iq
+    pip uninstall -y Inspiration-Q-API
     pip install .
     goto :eof
 )
