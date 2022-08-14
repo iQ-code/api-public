@@ -17,5 +17,8 @@ and quadratic components of the cost function, given by a real vector
 
     E = \sum_{m,n=1}^N x_m Q_{mn} x_n + \sum_{m=1}^n d_n x_n
 
+The library offers one solver.
+
+.. autofunction:: inspirationq.qudo.solve_QUBO_mc
 
 
