@@ -37,9 +37,10 @@ def solve_QUBO_mc(matrix, shots=300, steps=2000, credentials=default_credentials
     )
     return r["solution"], r["cost"]
 
+
 def solve_QBO_ca(matrix, N, shots=300, steps=2000, credentials=default_credentials):
     """Solve a QBO problem with cardinality constraint by stochastic optimization.
-    
+
     :param matrix: Real, square matrix for the QUBO problem.
     :type matrix: numpy.ndarray or similar
     :param N: Number of nonzero bits in the solution
@@ -52,14 +53,16 @@ def solve_QBO_ca(matrix, N, shots=300, steps=2000, credentials=default_credentia
         - s - vector of binary values, solution of the problem
         - E - minimum value of the QUBO cost function
     """
-    r = credentials.post('qbo_ca',
-                         json = {
-                             'matrix': validate_QUBO_matrix(matrix, 2048).tolist(),
-                             'N': validate.integer(N, 0, len(matrix))
-                             'shots': validate.integer(shots, 1, 500),
-                             'steps': validate.integer(shots, 1, 10000)
-                         })
-    return r['solution'], r['cost']
+    r = credentials.post(
+        "qbo_ca",
+        json={
+            "matrix": validate_QUBO_matrix(matrix, 2048).tolist(),
+            "N": validate.integer(N, 0, len(matrix)),
+            "shots": validate.integer(shots, 1, 500),
+            "steps": validate.integer(shots, 1, 10000),
+        },
+    )
+    return r["solution"], r["cost"]
 
 
 def solve_QUBO_cont(matrix, shots=300, credentials=default_credentials):
@@ -84,6 +87,7 @@ def solve_QUBO_cont(matrix, shots=300, credentials=default_credentials):
         },
     )
     return r["solution"], r["cost"]
+
 
 def solve_QUBO_bf(matrix, credentials=default_credentials):
     """Solve a QUBO problem by brute force exploration of all possible combinations.
