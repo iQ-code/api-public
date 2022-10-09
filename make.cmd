@@ -6,7 +6,7 @@ if "%1" == "all" (
 )
 if "%1" == "check" (
     echo ***
-    echo *** Running test suite
+    echo *** Running API-PUBLIC test suite
     echo ***
     python -m unittest tests
     goto :eof
