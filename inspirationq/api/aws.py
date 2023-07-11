@@ -1,17 +1,20 @@
 from .bare import iQBareAPI
 import boto3
+import time
+import json
 
 
-class iQSamAPI(iQBareAPI):
-    def __init__(self, username, password, base_url="http://127.0.0.1:3000/"):
-        super(iQSamAPI, self).__init__(base_url)
-        self.username = username
-        self.password = password
-        self.app_id = "7pjemis07hpeq8rvkqs02sstp3"
+class iQAWSAPI(iQBareAPI):
+    def __init__(self, username=None, password=None, base_url=None):
+        super().__init__(base_url=base_url, group="aws")
+        self.username = self.configuration_value("username", username)
+        self.password = self.configuration_value("password", password)
+        self.app_id = self.configuration_value("app_id", "7pjemis07hpeq8rvkqs02sstp3")
+        self.region_name = self.configuration_value("region_name", "us-east-1")
         self.access_token = None
 
     def get_token_(self):
-        client = boto3.client("cognito-idp", region_name="us-east-1")
+        client = boto3.client("cognito-idp", region_name=self.region_name)
 
         # Initiating the Authentication,
         response = client.initiate_auth(
@@ -39,22 +42,40 @@ class iQSamAPI(iQBareAPI):
             "Authorization": self.access_token
         }
 
+    def get(self, function, waittime=1, **kwdargs):
+        body = super().get(function, **kwdargs)
+        if body.get("completed", False):
+            return body
+        key = {"user": body["user"], "id": body["id"]}
+        while waittime < 15 * 60:
+            if self.debug:
+                print(f"Waiting for {waittime}s for '{function}' to complete")
+            time.sleep(waittime)
+            body = self.get("get", json=key)
+            if "Item" in body and body.get("found", False):
+                if self.debug:
+                    print(f"Found body:\n{body}")
+                return json.loads(body["Item"]["computation"])
+            waittime *= 2
+        raise Exception(f"Unable to complete computation with method '{function}'")
 
-class iQAWSAPI(iQSamAPI):
-    def __init__(
-        self,
-        username,
-        password,
-        url=None,
-    ):
-        if url is None:
-            url = "https://k7z1bo1yw9.execute-api.us-east-1.amazonaws.com/Prod"
-        super(iQAWSAPI, self).__init__(username, password, url)
+    def post(self, function, waittime=1, **kwdargs):
+        body = super().post(function, **kwdargs)
+        if body.get("completed", False):
+            return body
+        key = {"user": body["user"], "id": body["id"]}
+        while waittime < 15 * 60:
+            if self.debug:
+                print(f"Waiting for {waittime}s for '{function}' to complete")
+            time.sleep(waittime)
+            body = self.post("get", json=key)
+            if "Item" in body and body.get("found", False):
+                if self.debug:
+                    print(f"Found body:\n{body}")
+                return json.loads(body["Item"]["computation"])
+            waittime *= 2
+        raise Exception(f"Unable to complete computation with method '{function}'")
 
 
-def aws_credentials(username, password):
-    return iQAWSAPI(username, password)
-
-
-def sam_credentials(username, password, base_url="http://127.0.0.1:3000/"):
-    return iQSamAPI(username, password)
+def aws_credentials(username=None, password=None, base_url=None):
+    return iQAWSAPI(username=username, password=password, base_url=base_url)
